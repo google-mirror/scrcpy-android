@@ -119,7 +119,7 @@ public class VideoPacket extends MediaPacket {
 
         FRAME((byte) 0), KEY_FRAME((byte) 1), CONFIG((byte) 2), END((byte) 4);
 
-        private byte type;
+        private final byte type;
 
         Flag(byte type) {
             this.type = type;

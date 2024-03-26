@@ -44,10 +44,10 @@ public class DisplayWindow extends FrameLayout {
         init();
     }
 
-    private void init(){
+    private void init() {
         setClipChildren(false);
         setClipToPadding(false);
-        LayoutInflater.from(getContext()).inflate(R.layout.window_display,this,true);
+        LayoutInflater.from(getContext()).inflate(R.layout.window_display, this, true);
 
         container = findViewById(R.id.container);
         surfaceView = findViewById(R.id.surface);
@@ -56,7 +56,7 @@ public class DisplayWindow extends FrameLayout {
         findViewById(R.id.iv_close).setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     closeListener.onClick(view);
                 }
                 return false;
@@ -74,9 +74,9 @@ public class DisplayWindow extends FrameLayout {
                         oldY = motionEvent.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        float disX = motionEvent.getRawX()-oldX;
-                        float disY = motionEvent.getRawY()-oldY;
-                        moveCallback.onMove(disX,disY);
+                        float disX = motionEvent.getRawX() - oldX;
+                        float disY = motionEvent.getRawY() - oldY;
+                        moveCallback.onMove(disX, disY);
                         oldX = motionEvent.getRawX();
                         oldY = motionEvent.getRawY();
                         break;
@@ -91,11 +91,11 @@ public class DisplayWindow extends FrameLayout {
         findViewById(R.id.iv_mini).setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN){
-                    if (container.isShown()){
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    if (container.isShown()) {
                         container.setVisibility(View.GONE);
                         actionbar.setVisibility(View.GONE);
-                    }else{
+                    } else {
                         container.setVisibility(View.VISIBLE);
                         actionbar.setVisibility(View.VISIBLE);
                     }
@@ -106,7 +106,7 @@ public class DisplayWindow extends FrameLayout {
         findViewById(R.id.action_back).setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     actionCallback.onAction(0);
                 }
                 return false;
@@ -115,7 +115,7 @@ public class DisplayWindow extends FrameLayout {
         findViewById(R.id.action_home).setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     actionCallback.onAction(1);
                 }
                 return false;
@@ -124,7 +124,7 @@ public class DisplayWindow extends FrameLayout {
         findViewById(R.id.action_menu).setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN){
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     actionCallback.onAction(2);
                 }
                 return false;
@@ -133,7 +133,7 @@ public class DisplayWindow extends FrameLayout {
         container.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                return onDisplayTouchListener.onTouch(view,motionEvent);
+                return onDisplayTouchListener.onTouch(view, motionEvent);
             }
         });
     }
@@ -158,23 +158,23 @@ public class DisplayWindow extends FrameLayout {
         return surfaceView;
     }
 
-    public void setRemote(int w,int h){
+    public void setRemote(int w, int h) {
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         final Display display = windowManager.getDefaultDisplay();
         display.getRealMetrics(metrics);
         float this_dev_height = metrics.heightPixels;
-        float this_dev_width = Math.min(metrics.heightPixels,metrics.widthPixels);
+        float this_dev_width = Math.min(metrics.heightPixels, metrics.widthPixels);
 
         post(new Runnable() {
             @Override
             public void run() {
                 //根据比例设置高度
                 ViewGroup.LayoutParams lp = container.getLayoutParams();
-                float rate = (float)w/h;
-                Log.d(TAG, "setRemote: "+w+","+h+" %->"+rate);
+                float rate = (float) w / h;
+                Log.d(TAG, "setRemote: " + w + "," + h + " %->" + rate);
                 //高度屏幕的80%，然后宽度按比例
-                lp.height = (int)(this_dev_height * 0.95 - actionbar.getMeasuredHeight() - header.getMeasuredHeight()-50);
+                lp.height = (int) (this_dev_height * 0.95 - actionbar.getMeasuredHeight() - header.getMeasuredHeight() - 50);
                 lp.width = (int) (lp.height * rate);
                 container.setLayoutParams(lp);
 
@@ -187,26 +187,27 @@ public class DisplayWindow extends FrameLayout {
 
     }
 
-    public void hideHintTip(){
+    public void hideHintTip() {
         findViewById(R.id.hint).setVisibility(GONE);
     }
 
-    public Surface getDisplaySurface(){
+    public Surface getDisplaySurface() {
         return surfaceView.getHolder().getSurface();
     }
 
-    public int getSurfaceWidth(){
+    public int getSurfaceWidth() {
         return container.getMeasuredWidth();
     }
 
-    public int getSurfaceHeight(){
+    public int getSurfaceHeight() {
         return container.getMeasuredHeight();
     }
 
     public interface OnMoveCallback {
-        void onMove(float x,float y);
+        void onMove(float x, float y);
     }
-    public interface OnActionCallback{
+
+    public interface OnActionCallback {
         void onAction(int actionType);
     }
 }

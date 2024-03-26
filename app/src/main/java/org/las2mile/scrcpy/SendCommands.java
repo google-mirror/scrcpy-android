@@ -2,12 +2,15 @@ package org.las2mile.scrcpy;
 
 
 import static android.org.apache.commons.codec.binary.Base64.encodeBase64String;
+
 import android.content.Context;
 import android.util.Log;
+
 import com.tananaev.adblib.AdbBase64;
 import com.tananaev.adblib.AdbConnection;
 import com.tananaev.adblib.AdbCrypto;
 import com.tananaev.adblib.AdbStream;
+
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
@@ -43,8 +46,9 @@ public class SendCommands {
 
         AdbCrypto c = null;
         try {
-              c = AdbCrypto.loadAdbKeyPair(getBase64Impl(), context.getFileStreamPath("priv.key"), context.getFileStreamPath("pub.key"));
-        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException | NullPointerException e) {
+            c = AdbCrypto.loadAdbKeyPair(getBase64Impl(), context.getFileStreamPath("priv.key"), context.getFileStreamPath("pub.key"));
+        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException |
+                 NullPointerException e) {
             // Failed to read from file
             c = null;
         }
@@ -87,12 +91,12 @@ public class SendCommands {
             Log.e("ADB", "Connecting...");
             try {
                 Thread.sleep(100);
-                count ++;
+                count++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        if(count == 100){
+        if (count == 100) {
             status = 2;
         }
         return status;
@@ -118,7 +122,7 @@ public class SendCommands {
 
         try {
             sock = new Socket(ip, 5555);
-            Log.e("scrcpy"," ADB socket connection successful");
+            Log.e("scrcpy", " ADB socket connection successful");
         } catch (UnknownHostException e) {
             status = 2;
             throw new UnknownHostException(ip + " is no valid ip address");
@@ -133,7 +137,7 @@ public class SendCommands {
             status = 2;
         }
 
-        if (sock != null && status ==1) {
+        if (sock != null && status == 1) {
             try {
                 adb = AdbConnection.create(sock, crypto);
                 adb.connect();
@@ -145,7 +149,7 @@ public class SendCommands {
             }
         }
 
-        if (adb != null && status ==1) {
+        if (adb != null && status == 1) {
 
             try {
                 stream = adb.open("shell:");
@@ -156,7 +160,7 @@ public class SendCommands {
             }
         }
 
-        if (stream != null && status ==1) {
+        if (stream != null && status == 1) {
             try {
                 stream.write(" " + '\n');
             } catch (IOException | InterruptedException e) {
@@ -168,12 +172,12 @@ public class SendCommands {
 
         String responses = "";
         boolean done = false;
-        while (!done && stream != null && status ==1) {
+        while (!done && stream != null && status == 1) {
             try {
                 byte[] responseBytes = stream.read();
                 String response = new String(responseBytes, StandardCharsets.US_ASCII);
-                if (response.substring(response.length() - 2).equals("$ ") ||
-                        response.substring(response.length() - 2).equals("# ")) {
+                if (response.endsWith("$ ") ||
+                        response.endsWith("# ")) {
                     done = true;
 //                    Log.e("ADB_Shell","Prompt ready");
                     responses += response;
@@ -187,7 +191,7 @@ public class SendCommands {
             }
         }
 
-        if (stream != null && status ==1) {
+        if (stream != null && status == 1) {
             int len = fileBase64.length;
             byte[] filePart = new byte[4056];
             int sourceOffset = 0;
@@ -229,13 +233,11 @@ public class SendCommands {
                 stream.write(command + '\n');
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
-                status =2;
+                status = 2;
                 return;
             }
-	}
-        if (status ==1);
+        }
+        if (status == 1) ;
         status = 0;
-
     }
-
 }

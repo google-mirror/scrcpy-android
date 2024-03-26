@@ -1,7 +1,6 @@
 package org.las2mile.scrcpy.wrappers;
 
 import android.os.IInterface;
-import android.view.IRotationWatcher;
 
 public final class WindowManager {
     private final IInterface manager;
@@ -25,15 +24,15 @@ public final class WindowManager {
         }
     }
 
-    public void registerRotationWatcher(IRotationWatcher rotationWatcher) {
+    public void registerRotationWatcher(Object rotationWatcher, final Class<?> IRotationWatcher) {
         try {
             Class<?> cls = manager.getClass();
             try {
-                cls.getMethod("watchRotation", IRotationWatcher.class).invoke(manager, rotationWatcher);
+                cls.getMethod("watchRotation", IRotationWatcher).invoke(manager, rotationWatcher);
             } catch (NoSuchMethodException e) {
                 // display parameter added since this commit:
                 // https://android.googlesource.com/platform/frameworks/base/+/35fa3c26adcb5f6577849fd0df5228b1f67cf2c6%5E%21/#F1
-                cls.getMethod("watchRotation", IRotationWatcher.class, int.class).invoke(manager, rotationWatcher, 0);
+                cls.getMethod("watchRotation", IRotationWatcher, int.class).invoke(manager, rotationWatcher, 0);
             }
         } catch (Exception e) {
             throw new AssertionError(e);

@@ -11,11 +11,13 @@
     android:background="@android:color/background_dark"
     android:weightSum="2"
     android:orientation="vertical">
+
     <SurfaceView
         android:id="@+id/decoder_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />
+
     <LinearLayout
         android:id="@+id/nav_button_bar"
         android:layout_width="match_parent"

@@ -54,9 +54,9 @@ public class EventController {
 
     public void control(Options options) throws IOException {
         // on start, turn screen on
-        if(options.getTurnScreenOff()){
+        if (options.getTurnScreenOff()) {
             turnScreenOff();
-        }else {
+        } else {
             turnScreenOn();
         }
 
@@ -70,7 +70,7 @@ public class EventController {
                         proximity = true;           // Proximity event
                     } else if (buffer[0] == 29) {
                         proximity = false;
-                    }else {
+                    } else {
                         injectKeycode(buffer[0]);
                     }
                 } else {
@@ -134,8 +134,8 @@ public class EventController {
      * Schedule a call to set power mode to off after a small delay.
      */
     private static void turnScreenOff() {
-            Ln.i("Forcing screen off");
-            Device.setScreenPowerMode(Device.POWER_MODE_OFF);
+        Ln.i("Forcing screen off");
+        Device.setScreenPowerMode(Device.POWER_MODE_OFF);
     }
 
 }

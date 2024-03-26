@@ -15,7 +15,7 @@ public final class PowerManager {
         this.manager = manager;
         try {
             @SuppressLint("ObsoleteSdkInt") // we may lower minSdkVersion in the future
-                    String methodName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH ? "isInteractive" : "isScreenOn";
+            String methodName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH ? "isInteractive" : "isScreenOn";
             isScreenOnMethod = manager.getClass().getMethod(methodName);
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);

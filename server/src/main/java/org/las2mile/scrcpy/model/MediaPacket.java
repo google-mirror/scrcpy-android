@@ -11,7 +11,7 @@ public class MediaPacket {
 
         VIDEO((byte) 1), AUDIO((byte) 0);
 
-        private byte type;
+        private final byte type;
 
         Type(byte type) {
             this.type = type;

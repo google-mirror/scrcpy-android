@@ -27,7 +27,7 @@ public final class Server {
                 Ln.d("Screen streaming stopped");
 
             }
-        }finally {
+        } finally {
             Device.setScreenPowerMode(Device.POWER_MODE_NORMAL);
         }
     }

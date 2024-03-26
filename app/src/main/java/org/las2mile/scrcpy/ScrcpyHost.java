@@ -10,7 +10,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
-import android.view.SurfaceView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
+public class ScrcpyHost implements Scrcpy.ServiceCallbacks {
 
     private Context context;
     //scrcpy 相关
@@ -58,15 +57,15 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
             if (first_time) {
                 scrcpy.start(surface, serverAdr, screenHeight, screenWidth);
                 int count = 100;
-                while (count!=0 && !scrcpy.check_socket_connection()){
-                    count --;
+                while (count != 0 && !scrcpy.check_socket_connection()) {
+                    count--;
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                if (count == 0){
+                if (count == 0) {
                     if (serviceBound) {
                         scrcpy.StopService();
                         context.unbindService(serviceConnection);
@@ -74,13 +73,13 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
 
                     }
                     Toast.makeText(context, "Connection Timed out", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     int[] rem_res = scrcpy.get_remote_device_resolution();
                     remote_device_height = rem_res[1];
                     remote_device_width = rem_res[0];
                     first_time = false;
-                    Log.d("fuck", "onServiceConnected: "+remote_device_height+"|"+remote_device_width);
-                    connectCallBack.onConnect(Math.min(remote_device_width,remote_device_height),Math.max(remote_device_width,remote_device_height));
+                    Log.d("fuck", "onServiceConnected: " + remote_device_height + "|" + remote_device_width);
+                    connectCallBack.onConnect(Math.min(remote_device_width, remote_device_height), Math.max(remote_device_width, remote_device_height));
                 }
             } else {
                 scrcpy.setParms(surface, screenWidth, screenHeight);
@@ -94,7 +93,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
     };
 
 
-    private void exectJar(){
+    private void exectJar() {
         AssetManager assetManager = context.getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -107,7 +106,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
     }
 
 
-    public void connect(Context context,String clientIp,int width, int height, int bitrate, Surface display,boolean turnScreenOff){
+    public void connect(Context context, String clientIp, int width, int height, int bitrate, Surface display, boolean turnScreenOff) {
         this.context = context;
         screenWidth = width;
         screenHeight = height;
@@ -120,7 +119,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
 
         local_ip = wifiIpAddress();
         if (!serverAdr.isEmpty()) {
-            if (sendCommands.SendAdbCommands(context, fileBase64, serverAdr, local_ip, videoBitrate, Math.max(screenHeight, screenWidth),turnScreenOff) == 0) {
+            if (sendCommands.SendAdbCommands(context, fileBase64, serverAdr, local_ip, videoBitrate, Math.max(screenHeight, screenWidth), turnScreenOff) == 0) {
                 start_screen_copy_magic();
             } else {
                 Toast.makeText(context, "Network OR ADB connection failed", Toast.LENGTH_SHORT).show();
@@ -172,18 +171,18 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
         return null;
     }
 
-    public boolean touch(MotionEvent motionEvent,int surfaceW,int surfaceH){
+    public boolean touch(MotionEvent motionEvent, int surfaceW, int surfaceH) {
         return scrcpy.touchevent(motionEvent, surfaceW, surfaceH);
     }
 
-    public void keyEvent(int keyCode){
+    public void keyEvent(int keyCode) {
         scrcpy.sendKeyevent(keyCode);
     }
 
 
     @Override
     public void loadNewRotation() {
-        if (first_time){
+        if (first_time) {
             int[] rem_res = scrcpy.get_remote_device_resolution();
             remote_device_height = rem_res[1];
             remote_device_width = rem_res[0];
@@ -192,7 +191,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
         //TODO
     }
 
-    public void destroy(){
+    public void destroy() {
         if (serviceBound) {
             scrcpy.StopService();
             context.unbindService(serviceConnection);
@@ -201,7 +200,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks{
         }
     }
 
-    public interface ConnectCallBack{
-        void onConnect(float w,float h);
+    public interface ConnectCallBack {
+        void onConnect(float w, float h);
     }
 }

@@ -31,22 +31,22 @@ public class FloatService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null){
+        if (intent == null) {
             return super.onStartCommand(intent, flags, startId);
         }
         String ip = intent.getStringExtra("ip");
-        w = intent.getIntExtra("w",1080);
-        h = intent.getIntExtra("h",1920);
-        int b = intent.getIntExtra("b",1024000);
+        w = intent.getIntExtra("w", 1080);
+        h = intent.getIntExtra("h", 1920);
+        int b = intent.getIntExtra("b", 1024000);
 
-        t = intent.getBooleanExtra("h",false);
-        Log.d(TAG, "onStartCommand: "+w+","+h+"|"+b+" ->"+ip);
-        displayWindow.setRemote(w,h);
+        t = intent.getBooleanExtra("h", false);
+        Log.d(TAG, "onStartCommand: " + w + "," + h + "|" + b + " ->" + ip);
+        displayWindow.setRemote(w, h);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                startCopy(ip,w,h,b,t);
+                startCopy(ip, w, h, b, t);
             }
         }).start();
 
@@ -57,38 +57,38 @@ public class FloatService extends Service {
     public void onCreate() {
         super.onCreate();
         setupDisplay();
-        windowManager = (WindowManager)getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         lp = new WindowManager.LayoutParams();
         lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        lp.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-        lp.gravity = Gravity.TOP|Gravity.LEFT;
+        lp.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+        lp.gravity = Gravity.TOP | Gravity.LEFT;
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.verticalMargin = 0;
         lp.horizontalMargin = 0;
-        windowManager.addView(displayWindow,lp);
+        windowManager.addView(displayWindow, lp);
 
 //        startCopy();
 
     }
 
-    private void startCopy(String ip,int width,int height,int bitrate,boolean turnScreenOff) {
+    private void startCopy(String ip, int width, int height, int bitrate, boolean turnScreenOff) {
         scrcpyHost = new ScrcpyHost();
         scrcpyHost.setConnectCallBack(new ScrcpyHost.ConnectCallBack() {
             @Override
             public void onConnect(float w, float h) {
-                displayWindow.setRemote((int)w,(int)h);
+                displayWindow.setRemote((int) w, (int) h);
                 displayWindow.hideHintTip();
             }
         });
-        scrcpyHost.connect(getApplicationContext(),ip,width,height,bitrate,displayWindow.getDisplaySurface(),turnScreenOff);
+        scrcpyHost.connect(getApplicationContext(), ip, width, height, bitrate, displayWindow.getDisplaySurface(), turnScreenOff);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.d(TAG, "onConfigurationChanged: ");
-        displayWindow.setRemote(w,h);
+        displayWindow.setRemote(w, h);
     }
 
     @Override
@@ -98,9 +98,9 @@ public class FloatService extends Service {
         System.exit(0);
     }
 
-    private void setupDisplay(){
+    private void setupDisplay() {
         displayWindow = new DisplayWindow(getApplicationContext());
-        displayWindow.setCloseListener(v->{
+        displayWindow.setCloseListener(v -> {
             Log.d(TAG, "close");
             windowManager.removeView(displayWindow);
             stopSelf();
@@ -108,12 +108,12 @@ public class FloatService extends Service {
         displayWindow.setMoveCallback((x, y) -> {
             lp.x += x;
             lp.y += y;
-            windowManager.updateViewLayout(displayWindow,lp);
+            windowManager.updateViewLayout(displayWindow, lp);
         });
         displayWindow.setActionCallback(new DisplayWindow.OnActionCallback() {
             @Override
             public void onAction(int actionType) {
-                switch (actionType){
+                switch (actionType) {
                     case 0:
                         scrcpyHost.keyEvent(4);
                         break;
@@ -129,7 +129,7 @@ public class FloatService extends Service {
         displayWindow.setOnDisplayTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                return scrcpyHost.touch(motionEvent,displayWindow.getSurfaceWidth(), displayWindow.getSurfaceHeight());
+                return scrcpyHost.touch(motionEvent, displayWindow.getSurfaceWidth(), displayWindow.getSurfaceHeight());
             }
         });
     }

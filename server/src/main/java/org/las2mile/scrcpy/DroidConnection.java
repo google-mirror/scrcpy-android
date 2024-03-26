@@ -12,11 +12,11 @@ public final class DroidConnection implements Closeable {
 
 
     private static Socket socket = null;
-    private OutputStream outputStream;
-    private InputStream inputStream;
+    private final OutputStream outputStream;
+    private final InputStream inputStream;
 
     private DroidConnection(Socket socket) throws IOException {
-        this.socket = socket;
+        DroidConnection.socket = socket;
 
         inputStream = socket.getInputStream();
         outputStream = socket.getOutputStream();

@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class VideoDecoder {
     private MediaCodec mCodec;
     private Worker mWorker;
-    private AtomicBoolean mIsConfigured = new AtomicBoolean(false);
+    private final AtomicBoolean mIsConfigured = new AtomicBoolean(false);
 
     public void decodeSample(byte[] data, int offset, int size, long presentationTimeUs, int flags) {
         if (mWorker != null) {
@@ -46,7 +46,7 @@ public class VideoDecoder {
 
     private class Worker extends Thread {
 
-        private AtomicBoolean mIsRunning = new AtomicBoolean(false);
+        private final AtomicBoolean mIsRunning = new AtomicBoolean(false);
 
         Worker() {
         }

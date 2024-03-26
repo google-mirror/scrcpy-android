@@ -1,15 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
+    namespace "org.las2mile.scrcpy"
+    buildFeatures {
+        buildConfig true
+    }
+    compileSdk 33
     defaultConfig {
         applicationId "org.las2mile.scrcpy"
-        minSdkVersion 19
-        targetSdkVersion 31
+        minSdkVersion 27
+        targetSdkVersion 33
         versionCode 3
         versionName "1.2"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -20,18 +22,19 @@ android {
         }
     }
 
-    task copyRelease(dependsOn: 'deleteServer', type: Copy){
+    tasks.register('copyRelease', Copy) {
+        dependsOn 'deleteServer'
         from file('build/outputs/apk/release/server-release-unsigned.apk')
         into file('../app/src/main/assets')
         rename('server-release-unsigned.apk', 'scrcpy-server.jar')
     }
 
-    task deleteServer(type: Delete){
-	delete "../app/src/main/assets/scrcpy-server.jar"
-   }
+    tasks.register('deleteServer', Delete) {
+        delete "../app/src/main/assets/scrcpy-server.jar"
+    }
 
-
-    task copyDebug (dependsOn: 'deleteServer', type: Copy){
+    tasks.register('copyDebug', Copy) {
+        dependsOn 'deleteServer'
         from file("build/outputs/apk/debug/server-debug.apk")
         into file("../app/src/main/assets/")
         rename('server-debug.apk', 'scrcpy-server.jar')
@@ -46,12 +49,7 @@ android {
     }
 }
 
-
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.13.2'
 }
-
-apply from: "$project.rootDir/config/android-checkstyle.gradle"
 

@@ -1,17 +1,18 @@
 package org.las2mile.scrcpy;
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.view.IRotationWatcher;
 import android.view.InputEvent;
 
 import org.las2mile.scrcpy.wrappers.ServiceManager;
 import org.las2mile.scrcpy.wrappers.SurfaceControl;
 
-public final class Device {
+import java.lang.reflect.Proxy;
 
+@SuppressLint("PrivateApi")
+public final class Device {
     public static final int POWER_MODE_OFF = SurfaceControl.POWER_MODE_OFF;
     public static final int POWER_MODE_NORMAL = SurfaceControl.POWER_MODE_NORMAL;
 
@@ -21,19 +22,30 @@ public final class Device {
 
     public Device(Options options) {
         screenInfo = computeScreenInfo(options.getMaxSize());
-        registerRotationWatcher(new IRotationWatcher.Stub() {
-            @Override
-            public void onRotationChanged(int rotation) throws RemoteException {
-                synchronized (Device.this) {
-                    screenInfo = screenInfo.withRotation(rotation);
 
-                    // notify
-                    if (rotationListener != null) {
-                        rotationListener.onRotationChanged(rotation);
+        try {
+            final ClassLoader classLoader = Device.class.getClassLoader();
+            final Class<?> IRotationWatcher = Class.forName("android.view.IRotationWatcher", false, classLoader);
+            final Object proxyIRotationWatcher = Proxy.newProxyInstance(classLoader, new Class[]{IRotationWatcher}, (proxy, method, args) -> {
+                if ("onRotationChanged".equals(method.getName())) {
+                    int rotation = (int) args[0];
+                    synchronized (Device.this) {
+                        screenInfo = screenInfo.withRotation(rotation);
+
+                        // notify
+                        if (rotationListener != null) {
+                            rotationListener.onRotationChanged(rotation);
+                        }
                     }
                 }
+                return null;
+            });
+            registerRotationWatcher(proxyIRotationWatcher, IRotationWatcher);
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG) {
+                android.util.Log.e("ScrcpyDevice", e.getMessage(), e);
             }
-        });
+        }
     }
 
     public static String getDeviceName() {
@@ -78,7 +90,7 @@ public final class Device {
 
     public Point getPhysicalPoint(Position position) {
         @SuppressWarnings("checkstyle:HiddenField") // it hides the field on purpose, to read it with a lock
-                ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
+        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
         Size videoSize = screenInfo.getVideoSize();
         Size clientVideoSize = position.getScreenSize();
         if (!videoSize.equals(clientVideoSize)) {
@@ -101,8 +113,8 @@ public final class Device {
         return serviceManager.getPowerManager().isScreenOn();
     }
 
-    public void registerRotationWatcher(IRotationWatcher rotationWatcher) {
-        serviceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
+    public void registerRotationWatcher(Object rotationWatcher, final Class<?> IRotationWatcher) {
+        serviceManager.getWindowManager().registerRotationWatcher(rotationWatcher, IRotationWatcher);
     }
 
     public synchronized void setRotationListener(RotationListener rotationListener) {
@@ -111,7 +123,7 @@ public final class Device {
 
     public Point NewgetPhysicalPoint(Point point) {
         @SuppressWarnings("checkstyle:HiddenField") // it hides the field on purpose, to read it with a lock
-                ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
+        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
         Size videoSize = screenInfo.getVideoSize();
 //        Size clientVideoSize = position.getScreenSize();
 

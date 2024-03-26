@@ -3,13 +3,7 @@ package org.las2mile.scrcpy;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 
@@ -20,7 +14,6 @@ import org.las2mile.scrcpy.model.VideoPacket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,14 +27,13 @@ public class Scrcpy extends Service {
     private int screenHeight;
     private byte[] event = null;
     private VideoDecoder videoDecoder;
-    private AtomicBoolean updateAvailable = new AtomicBoolean(false);
-    private IBinder mBinder = new MyServiceBinder();
+    private final AtomicBoolean updateAvailable = new AtomicBoolean(false);
+    private final IBinder mBinder = new MyServiceBinder();
     private boolean first_time = true;
-    private AtomicBoolean LetServceRunning = new AtomicBoolean(true);
+    private final AtomicBoolean LetServceRunning = new AtomicBoolean(true);
     private ServiceCallbacks serviceCallbacks;
-    private int[] remote_dev_resolution = new int[2];
+    private final int[] remote_dev_resolution = new int[2];
     private boolean socket_status = false;
-
 
 
     @Override
@@ -94,10 +86,10 @@ public class Scrcpy extends Service {
 
 
     public boolean touchevent(MotionEvent touch_event, int displayW, int displayH) {
-        float remoteW = Math.min(remote_dev_resolution[0],remote_dev_resolution[1]);
-        float remoteH = Math.max(remote_dev_resolution[0],remote_dev_resolution[1]);
-        float realH = Math.min(remoteH,screenHeight);
-        float realW = realH * remoteW/remoteH;
+        float remoteW = Math.min(remote_dev_resolution[0], remote_dev_resolution[1]);
+        float remoteH = Math.max(remote_dev_resolution[0], remote_dev_resolution[1]);
+        float realH = Math.min(remoteH, screenHeight);
+        float realW = realH * remoteW / remoteH;
 
         int[] buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) (touch_event.getX() * realW / displayW), (int) (touch_event.getY() * realH / displayH)};
         final byte[] array = new byte[buf.length * 4]; // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
@@ -112,11 +104,11 @@ public class Scrcpy extends Service {
         return true;
     }
 
-    public int[] get_remote_device_resolution(){
+    public int[] get_remote_device_resolution() {
         return remote_dev_resolution;
     }
 
-    public boolean check_socket_connection(){
+    public boolean check_socket_connection() {
         return socket_status;
     }
 
@@ -151,17 +143,18 @@ public class Scrcpy extends Service {
                 byte[] packetSize;
                 attempts = 0;
                 byte[] buf = new byte[16];
-                dataInputStream.read(buf, 0,16);
-                for(int i =0; i<remote_dev_resolution.length; i++) {
+                dataInputStream.read(buf, 0, 16);
+                for (int i = 0; i < remote_dev_resolution.length; i++) {
                     remote_dev_resolution[i] = (((int) (buf[i * 4]) << 24) & 0xFF000000) |
                             (((int) (buf[i * 4 + 1]) << 16) & 0xFF0000) |
                             (((int) (buf[i * 4 + 2]) << 8) & 0xFF00) |
                             ((int) (buf[i * 4 + 3]) & 0xFF);
                 }
-                if (remote_dev_resolution[0] > remote_dev_resolution[1]){first_time = false;
-                int i = remote_dev_resolution[0];
-                remote_dev_resolution[0] = remote_dev_resolution[1];
-                remote_dev_resolution[1] = i;
+                if (remote_dev_resolution[0] > remote_dev_resolution[1]) {
+                    first_time = false;
+                    int i = remote_dev_resolution[0];
+                    remote_dev_resolution[0] = remote_dev_resolution[1];
+                    remote_dev_resolution[1] = i;
                 }
                 socket_status = true;
 //                    Log.e("Remote device res", String.valueOf(remote_dev_resolution[0]+" x "+remote_dev_resolution[1]));
@@ -200,7 +193,7 @@ public class Scrcpy extends Service {
                                         }
                                     }
                                     updateAvailable.set(false);
- //                                   first_time = false;
+                                    //                                   first_time = false;
                                     videoDecoder.configure(surface, screenWidth, screenHeight, streamSettings.sps, streamSettings.pps);
                                 } else if (videoPacket.flag == VideoPacket.Flag.END) {
                                     // need close stream
@@ -219,9 +212,9 @@ public class Scrcpy extends Service {
                 }
 
             } catch (IOException e) {
-              //  e.printStackTrace();
+                //  e.printStackTrace();
                 attempts = attempts - 1;
-                if (attempts == 0){
+                if (attempts == 0) {
                     socket_status = false;
                     return;
                 }
@@ -254,6 +247,6 @@ public class Scrcpy extends Service {
             return Scrcpy.this;
         }
     }
-    
+
 
 }

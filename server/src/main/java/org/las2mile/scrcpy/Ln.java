@@ -52,6 +52,6 @@ public final class Ln {
         DEBUG,
         INFO,
         WARN,
-        ERROR;
+        ERROR
     }
 }

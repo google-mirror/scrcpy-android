@@ -28,9 +28,9 @@ public class ScreenEncoder implements Device.RotationListener {
 
     private final AtomicBoolean rotationChanged = new AtomicBoolean();
 
-    private int bitRate;
-    private int frameRate;
-    private int iFrameInterval;
+    private final int bitRate;
+    private final int frameRate;
+    private final int iFrameInterval;
 
     public ScreenEncoder(int bitRate, int frameRate, int iFrameInterval) {
         this.bitRate = bitRate;
@@ -98,7 +98,7 @@ public class ScreenEncoder implements Device.RotationListener {
 
     public void streamScreen(Device device, OutputStream outputStream) throws IOException {
         int[] buf = new int[]{device.getScreenInfo().getDeviceSize().getWidth(), device.getScreenInfo().getDeviceSize().getHeight()};
-        final byte[] array = new byte[buf.length*4];   // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
+        final byte[] array = new byte[buf.length * 4];   // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
         for (int j = 0; j < buf.length; j++) {
             final int c = buf[j];
             array[j * 4] = (byte) ((c & 0xFF000000) >> 24);
@@ -106,7 +106,7 @@ public class ScreenEncoder implements Device.RotationListener {
             array[j * 4 + 2] = (byte) ((c & 0xFF00) >> 8);
             array[j * 4 + 3] = (byte) (c & 0xFF);
         }
-        outputStream.write(array,0, array.length);   // Sending device resolution
+        outputStream.write(array, 0, array.length);   // Sending device resolution
         MediaFormat format = createFormat(bitRate, frameRate, iFrameInterval);
         device.setRotationListener(this);
         boolean alive;
@@ -138,7 +138,7 @@ public class ScreenEncoder implements Device.RotationListener {
     private boolean encode(MediaCodec codec, OutputStream outputStream) throws IOException {
         @SuppressWarnings("checkstyle:MagicNumber")
 //        byte[] buf = new byte[bitRate / 8]; // may contain up to 1 second of video
-                boolean eof = false;
+        boolean eof = false;
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         while (!consumeRotationChange() && !eof) {
             int outputBufferId = codec.dequeueOutputBuffer(bufferInfo, -1);
